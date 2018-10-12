@@ -1,0 +1,162 @@
+#创建osd的monitor服务的mesos脚本(可修改项：id，MON_IP，CEPH_PUBLIC_NETWORK，constraint)：
+{
+  "id": "mon0",
+  "cmd": "/entrypoint.sh mon",
+  "cpus": 0.5,
+  "mem": 128,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "docker": {
+      "image": "maxthwell/ceph:jewel"
+    },
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "/etc/ceph",
+        "hostPath": "/etc/ceph",
+        "mode": "RW"
+      },
+      {
+        "hostPath": "/var/lib/ceph/",
+        "containerPath": "/var/lib/ceph/",
+        "mode": "RW"
+      }
+    ]
+  },
+  "networks": [
+    {
+      "mode": "host"
+    }
+  ],
+  "env": {
+    "MON_IP": "192.168.136.187",
+    "CEPH_PUBLIC_NETWORK": "192.168.136.0/24"
+  },
+  "constraints": [
+    [
+      "hostname",
+      "CLUSTER",
+      "ceph-node1"
+    ]
+  ]
+}
+
+
+#创建osd的mesos的脚本(可修改项：id，OSD_DEVICE，constraint。创建前需要保证磁盘为干净格式为xfs。)
+{
+  "id": "osd0",
+  "cmd": "/entrypoint.sh osd",
+  "cpus": 0.5,
+  "mem": 128,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "docker": {
+      "image": "maxthwell/ceph:jewel",
+      "privileged": true,
+      "parameters": [
+        {
+          "key": "pid",
+          "value": "host"
+        }
+      ]
+    },
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "/var/lib/ceph",
+        "hostPath": "/var/lib/ceph",
+        "mode": "RW"
+      },
+      {
+        "hostPath": "/etc/ceph",
+        "containerPath": "/etc/ceph",
+        "mode": "RW"
+      },
+      {
+        "hostPath": "/dev",
+        "containerPath": "/dev",
+        "mode": "RW"
+      }
+    ]
+  },
+  "portDefinitions": [
+    {
+      "port": 0,
+      "protocol": "tcp",
+      "name": null,
+      "labels": null
+    }
+  ],
+  "labels": {},
+  "env": {
+    "OSD_FORCE_ZAP": "0",
+    "OSD_DEVICE": "/dev/sdd",
+    "OSD_TYPE": "disk"
+  },
+  "healthChecks": [],
+  "networks": [
+    {
+      "mode": "host"
+    }
+  ],
+  "constraints": [
+    [
+      "hostname",
+      "CLUSTER",
+      "ceph-node1"
+    ]
+  ]
+}
+
+#创建rgw的mesos脚本 (可修改项：id，constraint)
+{
+  "id": "rgw0",
+  "cmd": "/entrypoint.sh rgw",
+  "cpus": 1,
+  "mem": 128,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "docker": {
+      "image": "maxthwell/ceph:jewel"
+    },
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "/etc/ceph",
+        "hostPath": "/etc/ceph",
+        "mode": "RW"
+      },
+      {
+        "hostPath": "/var/lib/ceph",
+        "containerPath": "/var/lib/ceph",
+        "mode": "RW"
+      }
+    ]
+  },
+  "networks": [
+    {
+      "mode": "host"
+    }
+  ],
+  "portDefinitions": [
+    {
+      "port": 0,
+      "protocol": "tcp",
+      "name": null,
+      "labels": null
+    }
+  ],
+  "env": {},
+  "labels": {},
+  "healthChecks": [],
+  "constraints": [
+    [
+      "hostname",
+      "CLUSTER",
+      "ceph-node1"
+    ]
+  ]
+}
