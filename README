@@ -1,3 +1,4 @@
+创建ceph镜像: TAG={tag} make，tag是生成的镜像的标签。将会创建两个镜像：ceph-base，ceph。其中ceph是中间镜像，是构建ceph镜像的基础镜像。
+
 ceph的部署方法：https://hub.docker.com/r/ceph/daemon/
 常见的使用问题：https://github.com/ceph/ceph-container/issues
-
