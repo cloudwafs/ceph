@@ -1,0 +1,26 @@
+#BASE IMAGE
+FROM centos:7
+ADD pki /etc/pki
+ADD yum.repos.d /etc/yum.repos.d
+ADD boost-1.63-part-devel.tar.gz /tmp
+ADD ceph-rpms-10.2.3-423.12c4eb663c385f9984bbf83affada4a416d15f88-el7.tar.gz /tmp
+RUN yum makecache
+RUN yum -y install leveldb
+RUN yum -y install libaio
+RUN yum -y install gperftools
+RUN yum -y install fuse-devel
+RUN yum -y install redhat-lsb
+RUN yum -y clean all
+RUN rpm -ivh --nodeps --force /tmp/boost-1.63-part-devel/*.rpm
+RUN rm -rf /tmp/boost-1.63-part-devel
+RUN rpm -ivh --nodeps --force /tmp/ceph-rpms-10.2.3-423.12c4eb663c385f9984bbf83affada4a416d15f88-el7/*.rpm
+RUN rm -rf /tmp/ceph-rpms-10.2.3-423.12c4eb663c385f9984bbf83affada4a416d15f88-el7
+RUN rm -rf /usr/include
+
+FROM busybox:1
+#MAINTAINER
+MAINTAINER ma.xiangxiang@eisoo.com
+COPY --from=0 / /
+ADD entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["osd","0"]
