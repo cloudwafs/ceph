@@ -1,6 +1,6 @@
 # CEPH DAEMON IMAGE
 #FROM ceph/daemon-base:master-jewel-centos-7-x86_64
-ARG baseimage=maxthwell/ceph-base:latest
+ARG baseimage=eisoo/ceph-base:latest
 FROM ${baseimage}
 
 # Who is the maintainer ?
@@ -49,7 +49,7 @@ RUN \
       CONFD_VERSION=0.16.0 && \
       # Assume linux
       CONFD_ARCH=linux-amd64 && \
-      wget -q -O /usr/local/bin/confd \
+      wget -O /usr/local/bin/confd \
         "https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VERSION}/confd-${CONFD_VERSION}-${CONFD_ARCH}" && \
       chmod +x /usr/local/bin/confd && mkdir -p /etc/confd/conf.d && mkdir -p /etc/confd/templates && \
     echo 'Install forego' && \
