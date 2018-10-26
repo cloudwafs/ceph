@@ -1,0 +1,125 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: k8s1
+  labels:
+    app: k8s1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ceph-on-k8s1
+    spec:
+      nodeSelector:
+        hostname: k8s1
+      hostname: k8s1
+      hostNetwork: true
+      hostPID: true
+      containers:
+        - name: ceph-mon
+          image: package.eisoo.com:8084/maxthwell/ceph:jewel
+          imagePullPolicy: Never
+          args: ["mon"]
+          ports:
+            - containerPort: 6789
+              protocol: TCP
+          env:
+            - name: MON_IP
+              value: 192.168.136.224
+            - name: CEPH_PUBLIC_NETWORK
+              value: 192.168.136.0/24
+            - name: CEPH_CLUSTER_NETWORK
+              value: 192.168.136.0/24
+          volumeMounts:
+            - mountPath: /etc/ceph
+              name: ceph-conf
+            - mountPath: /var/lib/ceph
+              name: ceph-data
+        - name: ceph-osd-sdd
+          image: package.eisoo.com:8084/maxthwell/ceph:jewel
+          imagePullPolicy: Never
+          args: ["osd"]
+          securityContext:
+            privileged: true
+          env:
+            - name: OSD_FORCE_ZAP
+              value: !!str 0
+            - name: OSD_DEVICE
+              value: /dev/sdd
+            - name: OSD_TYPE
+              value: disk
+          volumeMounts:
+            - mountPath: /etc/ceph
+              name: ceph-conf
+            - mountPath: /var/lib/ceph
+              name: ceph-data
+            - mountPath: /dev
+              name: ceph-dev
+        - name: ceph-osd-sde
+          image: package.eisoo.com:8084/maxthwell/ceph:jewel
+          imagePullPolicy: Never
+          args: ["osd"]
+          securityContext:
+            privileged: true
+          env:
+            - name: OSD_FORCE_ZAP
+              value: !!str 0
+            - name: OSD_DEVICE
+              value: /dev/sde
+            - name: OSD_TYPE
+              value: disk
+          volumeMounts:
+            - mountPath: /etc/ceph
+              name: ceph-conf
+            - mountPath: /var/lib/ceph
+              name: ceph-data
+            - mountPath: /dev
+              name: ceph-dev
+        - name: ceph-osd-sdf
+          image: package.eisoo.com:8084/maxthwell/ceph:jewel
+          imagePullPolicy: Never
+          args: ["osd"]
+          securityContext:
+            privileged: true
+          env:
+            - name: OSD_FORCE_ZAP
+              value: !!str 0
+            - name: OSD_DEVICE
+              value: /dev/sdf
+            - name: OSD_TYPE
+              value: disk
+          volumeMounts:
+            - mountPath: /etc/ceph
+              name: ceph-conf
+            - mountPath: /var/lib/ceph
+              name: ceph-data
+            - mountPath: /dev
+              name: ceph-dev
+        - name: ceph-rgw
+          image: package.eisoo.com:8084/maxthwell/ceph:jewel
+          imagePullPolicy: Never
+          args: ["rgw"]
+          env:
+          volumeMounts:
+            - mountPath: /etc/ceph
+              name: ceph-conf
+            - mountPath: /var/lib/ceph
+              name: ceph-data
+        - name: nginx
+          image: package.eisoo.com:8084/maxthwell/ceph-nginx:jewel
+          imagePullPolicy: Never
+          env:
+      volumes:
+        - name: ceph-conf
+          hostPath:
+            path: /etc/ceph
+        - name: ceph-data
+          hostPath:
+            path: /var/lib/ceph
+        - name: ceph-dev
+          hostPath:
+            path: "/dev"
+
+
+
