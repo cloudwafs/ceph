@@ -1,0 +1,5 @@
+#BASE IMAGE
+FROM nginx:1.15
+ADD nginx /usr/local/nginx
+ENTRYPOINT ["/usr/sbin/nginx"]
+CMD ["-p","/usr/local/nginx","-c","/usr/local/nginx/conf/nginx.conf"]

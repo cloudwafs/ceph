@@ -1,0 +1,11 @@
+## 打开buffer
+#proxy_buffering on;
+
+## 新增请求连接
+#access_by_lua_file '/usr/local/nginx/lua/src/modules/new_req.lua';
+
+## 更新响应速率
+#body_filter_by_lua_file '/usr/local/nginx/lua/src/modules/update_limit_rate.lua';
+
+## 释放请求
+#log_by_lua_file '/usr/local/nginx/lua/src/modules/free_req.lua';

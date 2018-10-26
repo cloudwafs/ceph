@@ -1,0 +1,11 @@
+## 指定lua文件查找路径
+#lua_package_path '/usr/local/nginx/lua/lua_lib/?.lua;/usr/local/nginx/lua/src/db/?.lua;/usr/local/nginx/lua/src/modules/?.lua;/usr/local/nginx/lua/src/common/?.lua;;';
+
+## 指定lua依赖c动态库路径
+#lua_package_cpath '/usr/local/nginx/lua/c_lib/?.so;;';
+
+## 共享内存，用于保存userid与当前限速值
+#lua_shared_dict user_limit_rate 128m;
+
+## 启动定时器定期更新共享内存 user_limit_rate
+#init_worker_by_lua_file '/usr/local/nginx/lua/src/modules/init_work.lua';

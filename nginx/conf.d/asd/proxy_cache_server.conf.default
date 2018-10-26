@@ -1,0 +1,87 @@
+server {
+    listen 8028;
+    proxy_redirect off;
+    proxy_buffering on;
+    location  / {
+        auth_request /auth;
+        include         /sysvol/etc/nginx/conf.d/limit_rate.conf;
+        if ($arg_datastoragehost){
+            proxy_pass http://$arg_datastoragehost;
+        }
+        if ($http_x_as_data_storage_host){
+            proxy_pass http://$http_x_as_data_storage_host;
+        }
+
+        # 缓存基本配置;
+        proxy_cache anyshare;
+        proxy_cache_key $uri$slice_range;
+        proxy_cache_valid 200 206 304 30d;
+
+        # 实现流式传输;
+        slice 12m;
+
+        # 避免源服务器端对缓存时间的影响;
+        proxy_ignore_headers "Expires";
+        proxy_hide_header  "Expires";
+        proxy_ignore_headers "Cache-Control";
+        proxy_hide_header "Cache-Control";
+        proxy_ignore_headers "Set-Cookie";
+        proxy_hide_header "Set-Cookie";
+
+        set $var1 $args;
+        set $var2 $uri;
+        proxy_set_header        Host            $host;
+        proxy_set_header        X-Real-IP       $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location /auth {
+        set $args $var1;
+        rewrite ^(.*)$ $var2 break;
+        proxy_pass http://127.0.0.1:9026;
+    }
+}
+
+server {
+    listen 8029 ssl;
+    proxy_redirect off;
+    proxy_buffering on;
+    location / {
+        auth_request /auth;
+        include         /sysvol/etc/nginx/conf.d/limit_rate.conf;
+        if ($arg_datastoragehost){
+            proxy_pass https://$arg_datastoragehost;
+        }
+        if ($http_x_as_data_storage_host){
+            proxy_pass https://$http_x_as_data_storage_host;
+        }
+
+        # 缓存基本配置;
+        proxy_cache anyshare;
+        proxy_cache_key $uri$slice_range;
+        proxy_cache_valid 200 206 304 30d;
+
+        # 实现流式传输;
+        slice 12m;
+
+        # 避免源服务器端对缓存时间的影响;
+        proxy_ignore_headers "Expires";
+        proxy_hide_header  "Expires";
+        proxy_ignore_headers "Cache-Control";
+        proxy_hide_header "Cache-Control";
+        proxy_ignore_headers "Set-Cookie";
+        proxy_hide_header "Set-Cookie";
+
+        set $var1 $args;
+        set $var2 $uri;
+        proxy_set_header        Host            $host;
+        proxy_set_header        X-Real-IP       $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location /auth {
+        set $args $var1;
+        rewrite ^(.*)$ $var2 break;
+        proxy_pass http://127.0.0.1:9026;
+    }
+}
